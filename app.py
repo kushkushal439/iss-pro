@@ -397,6 +397,15 @@ def signup():
       
 
         try:
+            sql = "SELECT * FROM users WHERE username = %s OR email = %s"
+            val = (username, email)
+            cursor.execute(sql, val)
+            result = cursor.fetchone()
+
+            if result:
+                # If the query returned a result, a user with the entered username or email already exists
+                return "Error: A user with this username or email already exists"
+
             # Hash the password before storing it
             hashed_password = generate_password_hash(password)
 
