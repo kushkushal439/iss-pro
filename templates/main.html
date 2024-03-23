@@ -258,15 +258,10 @@ $(document).ready(function(){
               <li><a href="{{url_for('main')}}">Brew your magic!</a></li>
               <li><a href="{{url_for('usrimagelist')}}">Gallery</a></li>
               <li><a href="{{url_for('addimage')}}">Upload Images</a></li>
-              <!-- <form id="logoutForm" action="{{url_for('logout')}}" method="POST">
-                <a href="#" onclick="document.getElementById('logoutForm').submit();">Logout</a>
-            </form> -->
-              <!-- <label class="burger" for="burger">
-                <input type="checkbox" id="burger">
-                <span></span>
-                <span></span>
-                <span></span>
-              </label> -->
+              <li><a href="#"> Profile</a></li>
+              <form id="logoutForm" action="{{url_for('logout')}}" method="POST">
+                <a href="#" onclick="document.getElementById('logoutForm').submit();" class="logsign">Logout</a>
+             </form>
           </ul>
       </header> 
 

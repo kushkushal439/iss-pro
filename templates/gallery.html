@@ -1,52 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css')}}">
-</head>
-<body>
-    <div class="back"><a href="intro.html">Back</a></div>
-    <h1>Welcome to Gallery</h1>
-    <form id="imageForm" name = "imageForm" action="/gallery" method="POST">
-        <div class="showpics">
-            {% for image in images %}
-            <div class="image-container">
-                <img src="{{ url_for('static', filename=image) }}" alt="saiufvas" style="max-height: 30vh;">
-                <label>
-                    {% if image in selected_images %}
-                        <input type="checkbox" name="selected_images" value="{{ image }}"   checked>
-                    {% else %}
-                        <input type="checkbox" name="selected_images" value="{{ image }}">
-                    {% endif %}
-                    Select
-                </label>
-            </div>
-            {% endfor %}
-        </div>
-        <input type="hidden" id="selectedImagesInput" name="selectedImagesInput">
-       <br><br><br><br><br>
-
-        <button type="submit" value="Submit">UPLOAD</button>
-    </form>
-
-    <script>
-        document.getElementById('imageForm').addEventListener('submit', function(event) {
-            var selectedImages = [];
-            var checkboxes = document.getElementsByName('selected_images');
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].checked) {
-                    selectedImages.push(checkboxes[i].value);
-                }
-            }
-            document.getElementById('selectedImagesInput').value = JSON.stringify(selectedImages);
-        });
-    </script>
-</body>
-</html> -->
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,16 +19,10 @@
               <li><a href="{{url_for('main')}}">Brew your magic!</a></li>
               <li><a href="{{url_for('usrimagelist')}}">Gallery</a></li>
               <li><a href="{{url_for('addimage')}}">Upload Images</a></li>
+              <li><a href="#"> Profile</a></li>
               <form id="logoutForm" action="{{url_for('logout')}}" method="POST">
                 <a href="#" onclick="document.getElementById('logoutForm').submit();" class="logsign">Logout</a>
-            </form>
-              <label class="burger" for="burger">
-                <input type="checkbox" id="burger">
-                <span></span>
-                <span></span>
-                <span></span>
-              </label>
-              <!-- <li><a href="#">Logout</a></li> -->
+             </form>
           </ul>
       </header> 
 
