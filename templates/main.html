@@ -32,6 +32,7 @@
     }
 
     $('#spinner').hide();
+    $('#vid source').attr('src', '');
    
     data.forEach(function(imageData) {
     var div = $('<div>')
@@ -210,7 +211,8 @@ $(document).on('change', 'select[id^="transition"]',function() {
         // Convert the reordered array to a JSON string
         var formData = JSON.stringify({
             reorderedArray: reorderedArray,
-            resolution: $('#resolution input:checked').next('span').text()
+            resolution: $('#resolution input:checked').next('span').text(),
+            music: $('#chmusic').val()
         });
 
             $.ajax({
@@ -282,7 +284,7 @@ $(document).ready(function(){
                       </div>
                 </div>
                 <video width="80%" height="80%" id="vid" controls>
-                    <source src="{{ url_for('static',filename='video/output.mp4')}}" type="video/mp4">
+                    <source src="" type="video/mp4">
                 </video>
             <!-- </div> -->
         </div>
@@ -290,16 +292,26 @@ $(document).ready(function(){
             <div class="upperspecs">
                 <div class="chmusic">
                     <label>Choose Background Music: </label>
-                    <select>
-                        <option>Happy Birthday</option>
-                        <option>Rick roll</option>
-                        <option>Yaari</option>
+                    <select  id="chmusic">
+                        <option>None</option>
+                        <option>silico</option>
+                        <option>goodgrief</option>
                     </select>
                 </div>
-
+                <div class="audio">
+                <p><br>Silico</p>
                 <audio height="1vh" controls style="margin-top: 2em;">
-                    <source src="audio.ogg" type="audio/ogg">
+                    <source src="{{ url_for('static',filename='audio/silico.mp3')}}" type="audio/ogg">
                 </audio>
+                </div>
+                <div class="audio">
+                    <p><br>GoodGrief</p>
+                    <audio height="1vh" controls style="margin-top: 2em;">
+                        <source src="{{ url_for('static',filename='audio/goodgrief.mp3')}}" type="audio/ogg">
+                    </audio>
+                    </div>
+                
+
                 <br><br><br>
                 <!-- <form id="resolution">
                     <select>

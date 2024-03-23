@@ -15,7 +15,7 @@ from PIL import Image
 import io
 from moviepy.editor import ImageSequenceClip, concatenate_videoclips,ImageClip
 import psycopg2
-from moviepy.editor import CompositeVideoClip
+from moviepy.editor import CompositeVideoClip,AudioFileClip
 from transitions import slide_in, slide_out, crossfadein,crossfadeout
 
 
@@ -234,15 +234,20 @@ def create_video():
    print(data['resolution'])
    resolutions = {'480p': (720, 480), '720p': (1280, 720), '1080p': (1920, 1080), '4k': (3840, 2160)}
    resolution_choice = data['resolution']
+   music = data['music']
+   print(music)
+   duration_sum = 0
    clips = []
    for item in data['reorderedArray']:
        if item is not None:
            print(item)
            image_path = os.path.join(app.root_path, item['image_path'])
            duration = float(item['duration'])
+           duration_sum+=duration
            transition = item['transition']
            clip = ImageClip(image_path).resize(resolutions[resolution_choice])
            clip = clip.set_duration(duration)
+           
            if transition == 'fade_in':
                clip = crossfadein(clip, (duration-1))
                print("Cross")
@@ -259,7 +264,12 @@ def create_video():
            composite_clip = CompositeVideoClip([clip])
 
            clips.append(composite_clip)
-   final_clip = concatenate_videoclips(clips, method="compose")
+   if music != 'None':
+        audio = AudioFileClip(f'static/audio/{music}.mp3')
+        audio = audio.subclip(0, duration_sum)
+        final_clip = concatenate_videoclips(clips, method="compose").set_audio(audio)
+   else:
+       final_clip = concatenate_videoclips(clips, method="compose")
 
 
    output_file_path = "static/video/output.mp4"
