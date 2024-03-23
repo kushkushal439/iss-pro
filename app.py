@@ -242,17 +242,23 @@ def create_video():
            duration = float(item['duration'])
            transition = item['transition']
            clip = ImageClip(image_path).resize(resolutions[resolution_choice])
-
-           if transition == 'fade':
-               clip = clip.crossfadein(3)
+           clip = clip.set_duration(duration)
+           if transition == 'fade_in':
+               clip = crossfadein(clip, (duration-1))
                print("Cross")
            elif transition == 'slide_in':
-               # Implement slide transition here
-            #    clip = slide_in(clip, 3, "left")
-                clip = clip.fx(slide_in, 3, "left")
+                clip = slide_in(clip,(duration-1),'left')
                 print("Slide")
+           elif transition == 'fade_out':
+                clip = crossfadeout(clip, (duration-1))
+                print("Cross")
+           elif transition == 'slide_out':  
+                clip = slide_out(clip,(duration-1),'left')
+                print("Slide") 
 
-           clips.append(clip.set_duration(duration))
+           composite_clip = CompositeVideoClip([clip])
+
+           clips.append(composite_clip)
    final_clip = concatenate_videoclips(clips, method="compose")
 
 

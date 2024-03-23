@@ -75,6 +75,7 @@ $('.clip').children().on('dragover', function(event) {
     var transition = $('<select id="transition' + imageData.name + '">')
         .append('<option value="none">None</option>')
         .append('<option value="fade_in">Fade In</option>')
+        .append('<option value="fade_out">Fade Out</option>')
         .append('<option value="slide_in">Slide In</option>')
         .append('<option value="slide_out">Slide Out</option>');
     div.append(transition);

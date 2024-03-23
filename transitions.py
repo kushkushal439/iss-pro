@@ -78,7 +78,7 @@ def slide_in(clip, duration, side):
         "bottom": lambda t: ("center", max(0, h * (1 - t / duration))),
     }
 
-    return clip.with_position(pos_dict[side])
+    return clip.set_position(pos_dict[side])
 
 
 @requires_duration
@@ -125,4 +125,4 @@ def slide_out(clip, duration, side):
         "bottom": lambda t: ("center", max(0, h * ((t - ts) / duration))),
     }
 
-    return clip.with_position(pos_dict[side])
+    return clip.set_position(pos_dict[side])
