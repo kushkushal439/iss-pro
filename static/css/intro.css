@@ -235,7 +235,7 @@ Media Queries
   width: auto;
   word-break: keep-all;
   z-index: 0;
-  margin-left: 8vw;
+  margin-left: 13vw;
 }
 
 @media (min-width: 768px) {

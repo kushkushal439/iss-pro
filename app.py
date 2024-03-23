@@ -576,6 +576,7 @@ def logout():
     unset_jwt_cookies(response)
     shutil.rmtree('static/images')
     if os.path.exists('static/selected'): shutil.rmtree('static/selected')
+    if os.path.exists('static/video'): shutil.rmtree('static/video')
     output_dir = "static/images"
 
     if not os.path.exists(output_dir):
