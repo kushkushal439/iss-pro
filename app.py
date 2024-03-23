@@ -67,7 +67,11 @@ sql = """
         img_id INT DEFAULT nextval('img_id_seq') PRIMARY KEY,
         user_id INT,
         chosen INT,
-        image_data BYTES
+        image_data BYTES,
+        image_name VARCHAR(255),
+        image_size INT,
+        image_format VARCHAR(255),
+        image_dimensions VARCHAR(255)
     )
     """
 
@@ -156,6 +160,31 @@ def intro():
    except ExpiredSignatureError:
         # If token is expired, redirect to login page
         return redirect('/login')
+
+
+
+@app.route('/profile', methods=['GET'])
+@jwt_required()
+def profile():
+    userid = int(get_jwt_identity())
+    qry = "select id, username, email from users where id = %s"
+    cursor.execute(qry,(userid,))
+    ret = []
+    data = cursor.fetchall()
+    for i in data:
+        userid = i[0]
+        sql = "select count(%s) from images where user_id = %s"
+        cursor.execute(sql,(userid,userid))
+        num = cursor.fetchall()
+        new = []
+        new.append(i[0])
+        new.append(i[1])
+        new.append(i[2])
+        new.append(num[0][0])
+        ret.append(new)
+    return render_template('profile.html', list = ret)
+
+
 
 
 
@@ -373,6 +402,11 @@ def signup():
 
 
 
+def get_image_dimensions(image_bytes):
+    with Image.open(io.BytesIO(image_bytes)) as img:
+        return img.size
+
+
 @app.route('/addimages', methods = ['POST','GET'])
 @jwt_required()
 def addimage():
@@ -382,11 +416,18 @@ def addimage():
             image1 = request.files.getlist('data[]')
             for image in image1:
                 image_bytes = image.read()
+                image_name = image.filename
+                image_size = len(image_bytes)
+                image_format = os.path.splitext(image_name)[1][1:].upper()
+                image_dimensions = get_image_dimensions(image_bytes)
+                check = str(image_dimensions)
+                print(f"{type(image_name)}  {type(image_size)}  {type(image_format)}   {type(image_dimensions)}")
+                print(f"{type(image_name)}  {type(image_size)}  {type(image_format)}   {check}   {type(check)}")
                 id = get_jwt_identity()
                 id = int(id)
                 tokeep = 0
-                sql = "INSERT INTO images (user_id,chosen,image_data) VALUES (%s, %s, %s)"
-                cursor.execute(sql,(id,tokeep,image_bytes))
+                sql = "INSERT INTO images (user_id,chosen,image_data,image_name,image_size,image_format,image_dimensions) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                cursor.execute(sql,(id,tokeep,image_bytes,image_name,image_size,image_format,check))
                 db.commit()
             return render_template('addimage.html')
     else:

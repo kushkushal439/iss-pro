@@ -1,94 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            font-family: sans-serif;
-            box-sizing: border-box;
-            background-color: gray;
-        }
-        .outer {
-            margin-top: 11%;
-            justify-content: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #droparea {
-            background-color: rgb(255, 255, 255);
-            width: 50vw;
-            height: 40vh;
-            padding: 30px;
-            text-align: center;
-            border-radius: 20px;
-        }
-        .imageview{
-            background-color: white;
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            border: 2px dashed rgb(119, 119, 119);
-        }
-
-        input[type="submit"] {
-        background-color: #4CAF50;
-        color: white;
-        padding: 14px 20px;
-        margin: 8px 0;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        display: inline-block;
-        }
-
-    </style>
-</head>
-<body>
-    <div class="outer" id = "outer">
-        <form action   ="/addimages" method="POST" enctype="multipart/form-data">
-            <div class="droparea" id = "droparea">
-            <input type="file" multiple accept = "image/*" id = "file" name = "file" style = "background-color: white;">
-            <div class="imageview" id = "imageview">
-                <img src="imgindiv.png" height="50%" width="20%" style = "margin: 30px; display: inline-block;">
-                <p style = "background-color: white; font-size: 1.75em; color: gray;">Drag and drop to add image</p>
-            </div>
-            </div>
-        <input type="submit" value="Upload" style = "margin-left: 45%;">
-        </form>
-    </div>
-    
-    
-    <script>
-        const dropArea = document.getElementById("droparea");
-        const imageview = document.getElementById("imageview");
-        const input = document.getElementById("file");
-
-        input.addEventListener("change",uploadimages);
-
-        function uploadimages(){
-            let imglink = URL.createObjectURL(input.files[0]);
-            imageview.style.backgroundImage = `url(${imglink})`;
-            imageview.textContent = "";
-            imageview.style.border = 0;
-        }
-        dropArea.addEventListener("dragover", function(e){
-            e.preventDefault();
-        });
-        dropArea.addEventListener("drop", function(e){
-            e.preventDefault();
-            input.files = e.dataTransfer.files;
-            uploadimages();
-        });
-    </script>
-</body>
-</html> -->
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,7 +15,7 @@
               <li><a href="{{url_for('main')}}">Brew your magic!</a></li>
               <li><a href="{{url_for('usrimagelist')}}">Gallery</a></li>
               <li><a href="{{url_for('addimage')}}">Upload Images</a></li>
-              <li><a href="#"> Profile</a></li>
+              <li><a href="{{ url_for('profile') }}"> Profile</a></li>
               <form id="logoutForm" action="{{url_for('logout')}}" method="POST">
                 <a href="#" onclick="document.getElementById('logoutForm').submit();" class="logsign">Logout</a>
              </form>
@@ -139,7 +48,9 @@
             <div class="image-container" id = "image-container">
             </div>
             <br><br><br><br>
+            <h3 id = "message" style = "display: none;text-align: center; margin-top: 11dvw; font-size: 1.2em;">"Images successfully uploaded!"</h3>
         </div>
+
     </div>
 
     <script>
@@ -209,6 +120,12 @@
             imgs.length = 0;
             var ret = document.getElementById("image-container");
             ret.innerHTML = '';
+            var div = document.getElementById('message');
+            div.style.display = 'block'; // Display the div
+            
+            setTimeout(function() {
+                div.style.display = 'none'; // Hide the div after 5 seconds
+            }, 2500); // 5000 milliseconds = 5 seconds
         // .then(response => response.json())
         // .then(data => console.log(data))
         // .catch(error => console.error('Error:', error));
