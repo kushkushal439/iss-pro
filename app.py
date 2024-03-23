@@ -395,8 +395,7 @@ def signup():
             val = (username , email, hashed_password)
             cursor.execute(sql, val)
             db.commit()
-            
-            return jsonify({"msg": "User registered successfully"}), 200
+            return redirect(url_for('login'))
 
         except Exception as e:
                # Rollback changes if an error occurs
@@ -563,7 +562,7 @@ def usrimagelist():
 @app.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
-    response = make_response(render_template('login.html'))
+    response = make_response(redirect(url_for('login')))
     unset_jwt_cookies(response)
     shutil.rmtree('static/images')
     if os.path.exists('static/selected'): shutil.rmtree('static/selected')
