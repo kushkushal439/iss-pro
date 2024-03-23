@@ -1,12 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for,session, jsonify,make_response
 import json
 import shutil
-
-import mysql.connector
 from mysql.connector import Error
 import os
 from datetime import datetime,timedelta
-import jwt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, unset_access_cookies, set_access_cookies, unset_jwt_cookies
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,10 +11,12 @@ from jwt.exceptions import DecodeError, ExpiredSignatureError, InvalidTokenError
 from functools import wraps
 import requests
 from PIL import Image
-import binascii
+# import binascii
 import io
-from moviepy.editor import ImageSequenceClip, concatenate_videoclips
+from moviepy.editor import ImageSequenceClip, concatenate_videoclips,ImageClip
 import psycopg2
+from moviepy.editor import CompositeVideoClip
+from transitions import slide_in, slide_out, crossfadein,crossfadeout
 
 
 
@@ -28,8 +27,9 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
 
 app.config['SECRET_KEY'] = 'secret'
 app.config['JWT_SECRET_KEY'] = 'key'
-app.config['JWT_TOKEN_LOCATION']=['headers','json','cookies','query_string']
+app.config['JWT_TOKEN_LOCATION']=['cookies']
 app.config["JWT_COOKIE_CSRF_PROTECT"] = False
+app.config['JWT_SESSION_COOKIE'] = False
 
 db = psycopg2.connect("postgresql://kushal:PpjAtagZofTf_1r7_5Yi7A@weisnoob-8900.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/users?sslmode=verify-full")
 cursor = db.cursor()
@@ -162,7 +162,31 @@ def intro():
 @app.route('/main',methods=['POST','GET','DELETE'])
 @jwt_required()
 def main():
+
+
+    userid = int(get_jwt_identity())
+
+    tokeep = 1
+    sql = "SELECT user_id, img_id, chosen FROM images WHERE images.user_id = %s and chosen = %s"
+    cursor.execute(sql,(userid,tokeep))
+    data = cursor.fetchall()
+    print(data)
+    numbers1= []
+    for i in data:
+        numbers1.append(int(i[1]))
+    print(numbers1)
     finaloutdir = "static/selected"
+    if os.path.exists('static/selected'): shutil.rmtree('static/selected')
+    if not os.path.exists(finaloutdir):
+        print("Entered entered entered")
+        os.makedirs(finaloutdir)
+    for num in numbers1:
+        name = 'img'
+        name += str(num)
+        name += '.jpg'
+        input_path = os.path.join(output_dir,name)
+        output_path = os.path.join(finaloutdir,name)
+        shutil.copy(input_path,output_path)
     images = [f for f in os.listdir(finaloutdir) if os.path.isfile(os.path.join(finaloutdir, f))]
     image_paths = [os.path.join('selected', img) for img in images]
     return render_template("main.html", images = image_paths)
@@ -175,28 +199,31 @@ def main():
 def create_video():
    data = request.get_json()  # Get the JSON data sent from the client
    # data = request.args.get('images-container')
-   str = 'None'
-   print('Hello')
+#    print('Hello')
    # print(data)
-   print("HEllo")
+#    print("HEllo")
+   print(data['resolution'])
+   resolutions = {'480p': (720, 480), '720p': (1280, 720), '1080p': (1920, 1080), '4k': (3840, 2160)}
+   resolution_choice = data['resolution']
    clips = []
-   for item in data:
+   for item in data['reorderedArray']:
        if item is not None:
            print(item)
            image_path = os.path.join(app.root_path, item['image_path'])
            duration = float(item['duration'])
            transition = item['transition']
-
-           clip = ImageSequenceClip([image_path], durations=[duration])
+           clip = ImageClip(image_path).resize(resolutions[resolution_choice])
 
            if transition == 'fade':
-               clip = clip.crossfadein(1)
+               clip = clip.crossfadein(3)
                print("Cross")
-           elif transition == 'slide':
+           elif transition == 'slide_in':
                # Implement slide transition here
-               pass
+            #    clip = slide_in(clip, 3, "left")
+                clip = clip.fx(slide_in, 3, "left")
+                print("Slide")
 
-           clips.append(clip)
+           clips.append(clip.set_duration(duration))
    final_clip = concatenate_videoclips(clips, method="compose")
 
 
@@ -237,7 +264,9 @@ def admin():
     return render_template('admin.html', list = ret)
 
 
+    
 @app.route('/login',methods=['GET','POST'])
+
 def login():
     if request.method=='POST':
             username = request.form['username']
@@ -301,7 +330,6 @@ def login():
                             output_path = os.path.join(finaloutdir,name)
                             shutil.copy(input_path,output_path)
                         return resp
-                    
                 else:
                     return "Incorrect Password"
             else:
@@ -414,29 +442,29 @@ def usrimagelist():
             qnow = "update images set chosen = %s where img_id = %s"
             cursor.execute(qnow,(tokeep,num))
             db.commit()
-        tokeep = 1
-        sql = "SELECT user_id, img_id, chosen FROM images WHERE images.user_id = %s and chosen = %s"
-        cursor.execute(sql,(userid,tokeep))
-        data = cursor.fetchall()
-        print(data)
-        numbers1= []
-        for i in data:
-            numbers1.append(int(i[1]))
-        print(numbers1)
-        finaloutdir = "static/selected"
-        if os.path.exists('static/selected'): shutil.rmtree('static/selected')
-        if not os.path.exists(finaloutdir):
-            print("Entered entered entered")
-            os.makedirs(finaloutdir)
-        for num in numbers1:
-            name = 'img'
-            name += str(num)
-            name += '.jpg'
-            input_path = os.path.join(output_dir,name)
-            output_path = os.path.join(finaloutdir,name)
-            shutil.copy(input_path,output_path)
-        images = [f for f in os.listdir(finaloutdir) if os.path.isfile(os.path.join(finaloutdir, f))]
-        image_paths = [os.path.join('selected', img) for img in images]
+        # tokeep = 1
+        # sql = "SELECT user_id, img_id, chosen FROM images WHERE images.user_id = %s and chosen = %s"
+        # cursor.execute(sql,(userid,tokeep))
+        # data = cursor.fetchall()
+        # print(data)
+        # numbers1= []
+        # for i in data:
+        #     numbers1.append(int(i[1]))
+        # print(numbers1)
+        # finaloutdir = "static/selected"
+        # if os.path.exists('static/selected'): shutil.rmtree('static/selected')
+        # if not os.path.exists(finaloutdir):
+        #     print("Entered entered entered")
+        #     os.makedirs(finaloutdir)
+        # for num in numbers1:
+        #     name = 'img'
+        #     name += str(num)
+        #     name += '.jpg'
+        #     input_path = os.path.join(output_dir,name)
+        #     output_path = os.path.join(finaloutdir,name)
+        #     shutil.copy(input_path,output_path)
+        # images = [f for f in os.listdir(finaloutdir) if os.path.isfile(os.path.join(finaloutdir, f))]
+        # image_paths = [os.path.join('selected', img) for img in images]
         # return render_template("main.html", images = image_paths)
         return redirect(url_for('main'))
         # return render_template("gallery.html")
