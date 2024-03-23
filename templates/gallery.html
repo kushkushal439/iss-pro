@@ -19,7 +19,7 @@
               <li><a href="{{url_for('main')}}">Brew your magic!</a></li>
               <li><a href="{{url_for('usrimagelist')}}">Gallery</a></li>
               <li><a href="{{url_for('addimage')}}">Upload Images</a></li>
-              <li><a href="#"> Profile</a></li>
+              <li><a href="{{ url_for('profile') }}"> Profile</a></li>
               <form id="logoutForm" action="{{url_for('logout')}}" method="POST">
                 <a href="#" onclick="document.getElementById('logoutForm').submit();" class="logsign">Logout</a>
              </form>
@@ -69,13 +69,9 @@
 
         <div class="box2">
             <div>
-                <button class="c-button c-button--gooey" type = "submit" value = "Submit"> UPLOAD
-                    <div class="c-button__blobs">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    </div>
-                </button>
+                <button class = "new">
+                    <span>BUTTON</span>
+                  </button>
                 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display: block; height: 0; width: 0;">
                     <defs>
                     <filter id="goo">

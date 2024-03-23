@@ -261,7 +261,7 @@ $(document).ready(function(){
               <li><a href="{{url_for('main')}}">Brew your magic!</a></li>
               <li><a href="{{url_for('usrimagelist')}}">Gallery</a></li>
               <li><a href="{{url_for('addimage')}}">Upload Images</a></li>
-              <li><a href="#"> Profile</a></li>
+              <li><a href="{{ url_for('profile') }}"> Profile</a></li>
               <form id="logoutForm" action="{{url_for('logout')}}" method="POST">
                 <a href="#" onclick="document.getElementById('logoutForm').submit();" class="logsign">Logout</a>
              </form>
