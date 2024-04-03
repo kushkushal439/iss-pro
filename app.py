@@ -9,7 +9,7 @@ from flask_jwt_extended import JWTManager, jwt_required, create_access_token, ge
 from werkzeug.security import generate_password_hash, check_password_hash
 from jwt.exceptions import DecodeError, ExpiredSignatureError, InvalidTokenError
 from functools import wraps
-import requests
+# import requests
 from PIL import Image
 # import binascii
 import io
