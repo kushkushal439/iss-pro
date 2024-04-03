@@ -305,7 +305,7 @@ def create_video():
 
 
             # Write the clip to a temporary file
-           temp_file = f'temp_{i}.mp4'
+           temp_file = f'static/video/temp_{i}.mp4'
            composite_clip.write_videofile(temp_file, codec='libx264',fps=24)
 
            temp_files.append(temp_file)
