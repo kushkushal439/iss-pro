@@ -13,7 +13,7 @@ from functools import wraps
 from PIL import Image
 # import binascii
 import io
-from moviepy.editor import ImageSequenceClip, concatenate_videoclips,ImageClip
+from moviepy.editor import ImageSequenceClip, concatenate_videoclips,ImageClip,VideoFileClip
 import psycopg2
 from moviepy.editor import CompositeVideoClip,AudioFileClip
 from transitions import slide_in, slide_out, crossfadein,crossfadeout
@@ -276,7 +276,8 @@ def create_video():
    print(music)
    duration_sum = 0
    clips = []
-   for item in data['reorderedArray']:
+   temp_files = []
+   for i,item in enumerate(data['reorderedArray']):
        if item is not None:
            print(item)
            image_path = os.path.join(app.root_path, item['image_path'])
@@ -302,13 +303,33 @@ def create_video():
 
            composite_clip = CompositeVideoClip([clip])
 
-           clips.append(composite_clip)
+
+            # Write the clip to a temporary file
+           temp_file = f'temp_{i}.mp4'
+           composite_clip.write_videofile(temp_file, codec='libx264',fps=24)
+
+           temp_files.append(temp_file)
+
+
+    # Read the temporary files and concatenate them
+   clips = [VideoFileClip(temp_file) for temp_file in temp_files]
+   final_clip = concatenate_videoclips(clips, method="compose")
+
+        # If there's audio, add it to the final clip
    if music != 'None':
-        audio = AudioFileClip(f'static/audio/{music}.mp3')
-        audio = audio.subclip(0, duration_sum)
-        final_clip = concatenate_videoclips(clips, method="compose").set_audio(audio)
-   else:
-       final_clip = concatenate_videoclips(clips, method="compose")
+            audio = AudioFileClip(f'static/audio/{music}.mp3')
+            audio = audio.subclip(0, duration_sum)
+            final_clip = final_clip.set_audio(audio)
+   for temp_file in temp_files:
+    os.remove(temp_file)
+
+        #    clips.append(composite_clip)
+#    if music != 'None':
+#         audio = AudioFileClip(f'static/audio/{music}.mp3')
+#         audio = audio.subclip(0, duration_sum)
+#         final_clip = concatenate_videoclips(clips, method="compose").set_audio(audio)
+#    else:
+#        final_clip = concatenate_videoclips(clips, method="compose")
 
 
    output_file_path = "static/video/output.mp4"
