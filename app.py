@@ -283,7 +283,8 @@ def create_video():
            duration = float(item['duration'])
            duration_sum+=duration
            transition = item['transition']
-           clip = ImageClip(image_path).resize(resolutions[resolution_choice])
+        #    clip = ImageClip(image_path).resize(resolutions[resolution_choice])
+           clip = ImageClip(image_path)
            clip = clip.set_duration(duration)
            
            if transition == 'fade_in':
