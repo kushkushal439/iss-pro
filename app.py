@@ -31,7 +31,7 @@ app.config['JWT_TOKEN_LOCATION']=['cookies']
 app.config["JWT_COOKIE_CSRF_PROTECT"] = False
 app.config['JWT_SESSION_COOKIE'] = False
 
-db = psycopg2.connect("postgresql://kushal:PpjAtagZofTf_1r7_5Yi7A@weisnoob-8900.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/users?sslmode=verify-full")
+db = psycopg2.connect("postgresql://kushal:PpjAtagZofTf_1r7_5Yi7A@weisnoob-8900.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/users?sslmode=verify-full&sslrootcert=./root.crt")
 cursor = db.cursor()
 
 # try:
