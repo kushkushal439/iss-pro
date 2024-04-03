@@ -699,6 +699,7 @@ def usrimagelist():
 @app.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
+    cursor.close()
     response = make_response(redirect(url_for('login')))
     unset_jwt_cookies(response)
     shutil.rmtree('static/images')
