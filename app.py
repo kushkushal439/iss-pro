@@ -195,30 +195,68 @@ def main():
 
     userid = int(get_jwt_identity())
 
+    # tokeep = 1
+    # sql = "SELECT user_id, img_id, chosen FROM images WHERE images.user_id = %s and chosen = %s"
+    # cursor.execute(sql,(userid,tokeep))
+    # data = cursor.fetchall()
+    # print(data)
+    # numbers1= []
+    # for i in data:
+    #     numbers1.append(int(i[1]))
+    # print(numbers1)
+    # finaloutdir = "static/selected"
+    # if os.path.exists('static/selected'): shutil.rmtree('static/selected')
+    # if not os.path.exists(finaloutdir):
+    #     print("Entered entered entered")
+    #     os.makedirs(finaloutdir)
+    # for num in numbers1:
+    #     name = 'img'
+    #     name += str(num)
+    #     name += '.jpg'
+    #     input_path = os.path.join(output_dir,name)
+    #     output_path = os.path.join(finaloutdir,name)
+    #     shutil.copy(input_path,output_path)
+    # images = [f for f in os.listdir(finaloutdir) if os.path.isfile(os.path.join(finaloutdir, f))]
+    # image_paths = [os.path.join('selected', img) for img in images]
+    # # return render_template("main.html", images = image_paths)
+
+
     tokeep = 1
-    sql = "SELECT user_id, img_id, chosen FROM images WHERE images.user_id = %s and chosen = %s"
+    sql = "SELECT user_id, img_id, chosen, image_format FROM images WHERE images.user_id = %s and chosen = %s"
     cursor.execute(sql,(userid,tokeep))
     data = cursor.fetchall()
-    print(data)
+    finaloutdir = "static/selected"
     numbers1= []
     for i in data:
-        numbers1.append(int(i[1]))
-    print(numbers1)
+        l = []
+        l.append(i[1])
+        l.append(i[3])
+        numbers1.append(l)
     finaloutdir = "static/selected"
     if os.path.exists('static/selected'): shutil.rmtree('static/selected')
     if not os.path.exists(finaloutdir):
         print("Entered entered entered")
         os.makedirs(finaloutdir)
     for num in numbers1:
-        name = 'img'
-        name += str(num)
-        name += '.jpg'
+        name = "img" + str(num[0])
+        ext = ".jpg"
+        if num[1].upper() == "JPEG":
+            ext = ".jpeg"
+        if num[1].upper() == "PNG": ext = ".png"
+        else: ext = ".jpg"
+        name = name + ext
         input_path = os.path.join(output_dir,name)
         output_path = os.path.join(finaloutdir,name)
         shutil.copy(input_path,output_path)
     images = [f for f in os.listdir(finaloutdir) if os.path.isfile(os.path.join(finaloutdir, f))]
     image_paths = [os.path.join('selected', img) for img in images]
     return render_template("main.html", images = image_paths)
+
+
+
+
+    
+
 
 
 
@@ -326,6 +364,15 @@ def login():
             user_data = cursor.fetchone()
 
 
+
+
+
+
+
+
+
+
+
             if user_data:
                 user_id=user_data[0]
                 stored_password=user_data[3]
@@ -334,14 +381,60 @@ def login():
                         access_token = create_access_token(identity=user_id)
                         resp = make_response(redirect(url_for('intro')))
                         set_access_cookies(resp, access_token)
+                        # userid = user_id
+                        # sql = "SELECT user_id, img_id, image_data FROM images WHERE images.user_id = %s"
+                        # cursor.execute(sql,(userid,))
+                        # data = cursor.fetchall()
+                        # iter = 0
+                        # for i in data:
+                        #     iter = i[1]
+                        #     name = "img" + str(iter) + ".jpg"
+                        #     output_path = os.path.join(output_dir,name)
+                        #     img1 = Image.open(io.BytesIO(i[2]))
+
+                        #     if img1.mode == 'RGBA':
+                        #         img1 = img1.convert('RGB')
+                        #     img1.save(output_path)
+
+                        # finaloutdir = "static/selected"
+                        # if os.path.exists('static/selected'): shutil.rmtree('static/selected')
+                        # if not os.path.exists(finaloutdir):
+                        #     print("Entered entered entered")
+                        #     os.makedirs(finaloutdir)
+                        # images = [f for f in os.listdir(output_dir) if os.path.isfile(os.path.join(output_dir, f))]
+                        # image_paths = [os.path.join('images', img) for img in images]
+                        # tokeep = 1
+                        # sql = "SELECT user_id, img_id, chosen FROM images WHERE images.user_id = %s and chosen = %s"
+                        # userid = user_id
+                        # cursor.execute(sql,(userid,tokeep))
+                        # data = cursor.fetchall()
+                        # numbers1= []
+                        # for i in data:
+                        #     numbers1.append(int(i[1]))
+                        # images1 = []
+                        # if not os.path.exists(finaloutdir):
+                        #     os.makedirs(finaloutdir)
+                        # for num in numbers1:
+                        #     name = 'img'
+                        #     name += str(num)
+                        #     name += '.jpg'
+                        #     input_path = os.path.join(output_dir,name)
+                        #     output_path = os.path.join(finaloutdir,name)
+                        #     shutil.copy(input_path,output_path)
                         userid = user_id
-                        sql = "SELECT user_id, img_id, image_data FROM images WHERE images.user_id = %s"
+                        sql = "SELECT user_id, img_id, image_data, image_format FROM images WHERE images.user_id = %s"
                         cursor.execute(sql,(userid,))
                         data = cursor.fetchall()
                         iter = 0
                         for i in data:
                             iter = i[1]
-                            name = "img" + str(iter) + ".jpg"
+                            name = "img" + str(iter)
+                            ext = ".jpg"
+                            if i[3] == "JPEG":
+                                ext = ".jpeg"
+                            if i[3] == "PNG": ext = ".png"
+                            else: ext = ".jpg"
+                            name = name + ext
                             output_path = os.path.join(output_dir,name)
                             img1 = Image.open(io.BytesIO(i[2]))
 
@@ -350,30 +443,35 @@ def login():
                             img1.save(output_path)
 
                         finaloutdir = "static/selected"
-                        if os.path.exists('static/selected'): shutil.rmtree('static/selected')
-                        if not os.path.exists(finaloutdir):
-                            print("Entered entered entered")
-                            os.makedirs(finaloutdir)
+
                         images = [f for f in os.listdir(output_dir) if os.path.isfile(os.path.join(output_dir, f))]
                         image_paths = [os.path.join('images', img) for img in images]
                         tokeep = 1
-                        sql = "SELECT user_id, img_id, chosen FROM images WHERE images.user_id = %s and chosen = %s"
-                        userid = user_id
+                        sql = "SELECT user_id, img_id, chosen, image_format FROM images WHERE images.user_id = %s and chosen = %s"
                         cursor.execute(sql,(userid,tokeep))
                         data = cursor.fetchall()
-                        numbers1= []
-                        for i in data:
-                            numbers1.append(int(i[1]))
-                        images1 = []
-                        if not os.path.exists(finaloutdir):
-                            os.makedirs(finaloutdir)
-                        for num in numbers1:
-                            name = 'img'
-                            name += str(num)
-                            name += '.jpg'
-                            input_path = os.path.join(output_dir,name)
-                            output_path = os.path.join(finaloutdir,name)
-                            shutil.copy(input_path,output_path)
+                        if data:
+                            numbers1= []
+                            for i in data:
+                                l = []
+                                l.append(i[1])
+                                l.append(i[3])
+                                numbers1.append(l)
+                            finaloutdir = "static/selected"
+                            images1 = []
+                            if not os.path.exists(finaloutdir):
+                                os.makedirs(finaloutdir)
+                            for num in numbers1:
+                                name = "img" + str(num[0])
+                                ext = ".jpg"
+                                if num[1] == "JPEG":
+                                    ext = ".jpeg"
+                                if num[1] == "PNG": ext = ".png"
+                                else: ext = ".jpg"
+                                name = name + ext
+                                input_path = os.path.join(output_dir,name)
+                                output_path = os.path.join(finaloutdir,name)
+                                shutil.copy(input_path,output_path)
                         return resp
                 else:
                     return "Incorrect Password"
@@ -468,7 +566,9 @@ def updatedb():
     parts = str.split('/')
     last_part = parts[-1]    
     number_str = last_part.replace('.jpg', '')   
-    number_str1 = number_str.replace('img', ''); 
+    number_str = number_str.replace('.jpeg', '') 
+    number_str = number_str.replace('.png', '') 
+    number_str1 = number_str.replace('img', '')
     num = number_str1
     sql = "delete from images where img_id = %s"
     print(num)
@@ -496,8 +596,10 @@ def usrimagelist():
         for string in selected_images:
             parts = string.split('/')
             last_part = parts[-1]    
-            number_str = last_part.replace('.jpg', '')   
-            number_str1 = number_str.replace('img', ''); 
+            number_str = last_part.replace('.jpg', '')
+            number_str = number_str.replace('.jpeg', '')
+            number_str = number_str.replace('.png', '') 
+            number_str1 = number_str.replace('img', '') 
             numbers.append(int(number_str1))
         userid = int(get_jwt_identity())
         sqldel = "update images set chosen = %s where user_id = %s"
@@ -534,13 +636,19 @@ def usrimagelist():
         return redirect(url_for('main'))
         # return render_template("gallery.html")
     userid = int(get_jwt_identity())
-    sql = "SELECT user_id, img_id, image_data FROM images WHERE images.user_id = %s"
+    sql = "SELECT user_id, img_id, image_data, image_format FROM images WHERE images.user_id = %s"
     cursor.execute(sql,(userid,))
     data = cursor.fetchall()
     iter = 0
     for i in data:
         iter = i[1]
-        name = "img" + str(iter) + ".jpg"
+        name = "img" + str(iter)
+        ext = ".jpg"
+        if i[3] == "JPEG":
+            ext = ".jpeg"
+        if i[3] == "PNG": ext = ".png"
+        else: ext = ".jpg"
+        name = name + ext
         output_path = os.path.join(output_dir,name)
         img1 = Image.open(io.BytesIO(i[2]))
 
@@ -553,25 +661,34 @@ def usrimagelist():
     images = [f for f in os.listdir(output_dir) if os.path.isfile(os.path.join(output_dir, f))]
     image_paths = [os.path.join('images', img) for img in images]
     tokeep = 1
-    sql = "SELECT user_id, img_id, chosen FROM images WHERE images.user_id = %s and chosen = %s"
+    sql = "SELECT user_id, img_id, chosen, image_format FROM images WHERE images.user_id = %s and chosen = %s"
     userid = int(get_jwt_identity())
     cursor.execute(sql,(userid,tokeep))
     data = cursor.fetchall()
-    if data:
-        numbers1= []
-        for i in data:
-            numbers1.append(int(i[1]))
-        finaloutdir = "static/selected"
-        images1 = []
-        if not os.path.exists(finaloutdir):
-            os.makedirs(finaloutdir)
-        for num in numbers1:
-            name = 'img'
-            name += str(num)
-            name += '.jpg'
-            input_path = os.path.join(output_dir,name)
-            output_path = os.path.join(finaloutdir,name)
-            shutil.copy(input_path,output_path)
+    numbers1= []
+    for i in data:
+        l = []
+        l.append(i[1])
+        l.append(i[3])
+        numbers1.append(l)
+    finaloutdir = "static/selected"
+    images1 = []
+    if not os.path.exists(finaloutdir):
+        os.makedirs(finaloutdir)
+        print("NONONONONNO")
+    if os.path.exists(finaloutdir):
+        print("HEYHEYHEYHEY")
+    for num in numbers1:
+        name = "img" + str(num[0])
+        ext = ".jpg"
+        if num[1] == "JPEG":
+            ext = ".jpeg"
+        if num[1] == "PNG": ext = ".png"
+        else: ext = ".jpg"
+        name = name + ext
+        input_path = os.path.join(output_dir,name)
+        output_path = os.path.join(finaloutdir,name)
+        shutil.copy(input_path,output_path)
     images = [f for f in os.listdir(finaloutdir) if os.path.isfile(os.path.join(finaloutdir, f))]
     selected_images = [os.path.join('images', img) for img in images]
     print(image_paths)
