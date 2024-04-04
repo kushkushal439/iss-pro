@@ -274,6 +274,17 @@ def create_video():
    resolution_choice = data['resolution']
    music = data['music']
    print(music)
+   output_file_path = "static/video/output.mp4"
+   video_dir = "static/video"
+
+   # Check if the file exists and delete it
+   if os.path.isfile(output_file_path):
+       os.remove(output_file_path)
+
+   # Check if the directory exists
+   if not os.path.exists(video_dir):
+       # If the directory doesn't exist, create it
+       os.makedirs(video_dir)
    duration_sum = 0
    clips = []
    temp_files = []
@@ -332,17 +343,7 @@ def create_video():
 #        final_clip = concatenate_videoclips(clips, method="compose")
 
 
-   output_file_path = "static/video/output.mp4"
-   video_dir = "static/video"
-
-   # Check if the file exists and delete it
-   if os.path.isfile(output_file_path):
-       os.remove(output_file_path)
-
-   # Check if the directory exists
-   if not os.path.exists(video_dir):
-       # If the directory doesn't exist, create it
-       os.makedirs(video_dir)
+   
 
    final_clip.write_videofile(output_file_path, fps=24)
    video_url = "/static/video/output.mp4"
@@ -720,7 +721,7 @@ def usrimagelist():
 @app.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
-    cursor.close()
+    # cursor.close()
     response = make_response(redirect(url_for('login')))
     unset_jwt_cookies(response)
     shutil.rmtree('static/images')
