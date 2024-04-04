@@ -13,7 +13,7 @@ from functools import wraps
 from PIL import Image
 # import binascii
 import io
-from moviepy.editor import ImageSequenceClip, concatenate_videoclips,ImageClip
+from moviepy.editor import ImageSequenceClip, concatenate_videoclips,ImageClip,VideoFileClip
 import psycopg2
 from moviepy.editor import CompositeVideoClip,AudioFileClip
 from transitions import slide_in, slide_out, crossfadein,crossfadeout
@@ -274,18 +274,30 @@ def create_video():
    resolution_choice = data['resolution']
    music = data['music']
    print(music)
+   output_file_path = "static/video/output.mp4"
+   video_dir = "static/video"
+
+   # Check if the file exists and delete it
+   if os.path.isfile(output_file_path):
+       os.remove(output_file_path)
+
+   # Check if the directory exists
+   if not os.path.exists(video_dir):
+       # If the directory doesn't exist, create it
+       os.makedirs(video_dir)
    duration_sum = 0
    clips = []
-   for item in data['reorderedArray']:
+   temp_files = []
+   for i,item in enumerate(data['reorderedArray']):
        if item is not None:
            print(item)
            image_path = os.path.join(app.root_path, item['image_path'])
            duration = float(item['duration'])
            duration_sum+=duration
            transition = item['transition']
-        #    clip = ImageClip(image_path).resize(resolutions[resolution_choice])
-           clip = ImageClip(image_path)
-           clip = clip.set_duration(duration)   
+           clip = ImageClip(image_path).resize(resolutions[resolution_choice])
+        #    clip = ImageClip(image_path)
+           clip = clip.set_duration(duration)
            
            if transition == 'fade_in':
                clip = crossfadein(clip, (duration-1))
@@ -302,26 +314,36 @@ def create_video():
 
            composite_clip = CompositeVideoClip([clip])
 
-           clips.append(composite_clip)
+
+            # Write the clip to a temporary file
+           temp_file = f'static/video/temp_{i}.mp4'
+           composite_clip.write_videofile(temp_file, codec='libx264',fps=24)
+
+           temp_files.append(temp_file)
+
+
+    # Read the temporary files and concatenate them
+   clips = [VideoFileClip(temp_file) for temp_file in temp_files]
+   final_clip = concatenate_videoclips(clips, method="compose")
+
+        # If there's audio, add it to the final clip
    if music != 'None':
-        audio = AudioFileClip(f'static/audio/{music}.mp3')
-        audio = audio.subclip(0, duration_sum)
-        final_clip = concatenate_videoclips(clips, method="compose").set_audio(audio)
-   else:
-       final_clip = concatenate_videoclips(clips, method="compose")
+            audio = AudioFileClip(f'static/audio/{music}.mp3')
+            audio = audio.subclip(0, duration_sum)
+            final_clip = final_clip.set_audio(audio)
+   for temp_file in temp_files:
+    os.remove(temp_file)
+
+        #    clips.append(composite_clip)
+#    if music != 'None':
+#         audio = AudioFileClip(f'static/audio/{music}.mp3')
+#         audio = audio.subclip(0, duration_sum)
+#         final_clip = concatenate_videoclips(clips, method="compose").set_audio(audio)
+#    else:
+#        final_clip = concatenate_videoclips(clips, method="compose")
 
 
-   output_file_path = "static/video/output.mp4"
-   video_dir = "static/video"
-
-   # Check if the file exists and delete it
-   if os.path.isfile(output_file_path):
-       os.remove(output_file_path)
-
-   # Check if the directory exists
-   if not os.path.exists(video_dir):
-       # If the directory doesn't exist, create it
-       os.makedirs(video_dir)
+   
 
    final_clip.write_videofile(output_file_path, fps=24)
    video_url = "/static/video/output.mp4"
@@ -329,6 +351,7 @@ def create_video():
 
 
 @app.route('/admin',methods = ['GET'])
+@jwt_required()
 def admin():
     ret = []
     qry = "select id, username, email from users"
@@ -699,6 +722,7 @@ def usrimagelist():
 @app.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
+    # cursor.close()
     response = make_response(redirect(url_for('login')))
     unset_jwt_cookies(response)
     shutil.rmtree('static/images')
