@@ -285,7 +285,7 @@ def create_video():
            transition = item['transition']
         #    clip = ImageClip(image_path).resize(resolutions[resolution_choice])
            clip = ImageClip(image_path)
-           clip = clip.set_duration(duration)
+           clip = clip.set_duration(duration)   
            
            if transition == 'fade_in':
                clip = crossfadein(clip, (duration-1))
